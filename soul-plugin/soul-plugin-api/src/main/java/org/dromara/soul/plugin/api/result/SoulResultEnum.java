@@ -55,6 +55,16 @@ public enum SoulResultEnum {
     TOO_MANY_REQUESTS(429, "You have been restricted, please try again later!"),
 
     /**
+     * Hystrix plugin fallback, due to a circuit break.
+     */
+    HYSTRIX_PLUGIN_FALLBACK(429, "HystrixPlugin fallback success, please check your service status!"),
+
+    /**
+     * Resilience4J plugin fallback, due to a circuit break.
+     */
+    RESILIENCE4J_PLUGIN_FALLBACK(429, "Resilience4JPlugin fallback success, please check your service status!"),
+
+    /**
      * Meta data error soul result enum.
      */
     META_DATA_ERROR(430, "Meta data error!"),
@@ -78,6 +88,22 @@ public enum SoulResultEnum {
      * Tars invoke soul result enum.
      */
     TARS_INVOKE(434, "Tars invoke error!"),
+
+    /**
+     * Grpc have body param soul result enum.
+     */
+    GRPC_HAVE_BODY_PARAM(435, "Grpc must have body param, please enter the JSON format in the body!"),
+
+    /**
+     * Grpc client resultenum.
+     */
+    GRPC_CLIENT_NULL(436, "Grpc client is null, please check the context path!"),
+
+    /**
+     * Motan have body param soul result enum.
+     */
+    MOTAN_HAVE_BODY_PARAM(437, "Motan must have body param, please enter the JSON format in the body!"),
+
 
     /**
      * full selector type enum.
@@ -127,17 +153,27 @@ public enum SoulResultEnum {
     /**
      * The Springcloud serviceid is error.
      */
-    SPRINGCLOUD_SERVICEID_IS_ERROR(-109, "springCloud serviceId does not exist or is configured incorrectly!"),
+    SPRINGCLOUD_SERVICEID_IS_ERROR(-109, "SpringCloud serviceId does not exist or is configured incorrectly!"),
 
     /**
      * The Sentinel block error.
      */
-    SENTINEL_BLOCK_ERROR(-110, "the request block by sentinel!"),
+    SENTINEL_BLOCK_ERROR(-110, "The request block by sentinel!"),
 
     /**
      * The Context path error.
      */
-    CONTEXT_PATH_ERROR(-111, "the context path illegal, please check the context path mapping plugin!");
+    CONTEXT_PATH_ERROR(-111, "The context path illegal, please check the context path mapping plugin!"),
+
+    /**
+     * Request Header Fields Too Large.
+     */
+    REQUEST_HEADER_TOO_LARGE(431, "Request Header Fields Too Large"),
+
+    /**
+     * Request Entity Too Large.
+     */
+    REQUEST_ENTITY_TOO_LARGE(413, "Request Entity Too Large");
 
     private final int code;
 

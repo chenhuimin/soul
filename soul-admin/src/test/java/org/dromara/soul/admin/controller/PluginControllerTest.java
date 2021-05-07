@@ -18,15 +18,15 @@
 package org.dromara.soul.admin.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.soul.admin.dto.BatchCommonDTO;
-import org.dromara.soul.admin.dto.PluginDTO;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.PluginQuery;
+import org.dromara.soul.admin.model.dto.BatchCommonDTO;
+import org.dromara.soul.admin.model.dto.PluginDTO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.PluginQuery;
 import org.dromara.soul.admin.service.PluginService;
 import org.dromara.soul.admin.service.SyncDataService;
 import org.dromara.soul.admin.utils.SoulResultMessage;
-import org.dromara.soul.admin.vo.PluginVO;
+import org.dromara.soul.admin.model.vo.PluginVO;
 import org.dromara.soul.common.constant.AdminConstants;
 import org.dromara.soul.common.enums.DataEventTypeEnum;
 import org.dromara.soul.common.utils.DateUtils;
@@ -88,10 +88,11 @@ public final class PluginControllerTest {
         final CommonPager<PluginVO> commonPager = new CommonPager<>();
         commonPager.setPage(pageParameter);
         commonPager.setDataList(pluginVOS);
-        final PluginQuery pluginQuery = new PluginQuery("t_n", pageParameter);
+        final PluginQuery pluginQuery = new PluginQuery("t_n", 1, pageParameter);
         given(this.pluginService.listByPage(pluginQuery)).willReturn(commonPager);
         this.mockMvc.perform(MockMvcRequestBuilders.get("/plugin")
                 .param("name", "t_n")
+                .param("enabled", "1")
                 .param("currentPage", pageParameter.getCurrentPage() + "")
                 .param("pageSize", pageParameter.getPageSize() + ""))
                 .andExpect(status().isOk())

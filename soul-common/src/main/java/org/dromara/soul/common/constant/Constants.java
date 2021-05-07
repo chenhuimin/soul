@@ -35,9 +35,39 @@ public interface Constants {
     String CONTEXT = "context";
 
     /**
+     * The constant context path.
+     */
+    String CONTEXT_PATH = "contextPath";
+
+    /**
      * The constant META_DATA.
      */
     String META_DATA = "metaData";
+
+    /**
+     * The constant HOST.
+     */
+    String HOST = "host";
+
+    /**
+     * The constant PORT.
+     */
+    String PORT = "port";
+
+    /**
+     * The constant rule name.
+     */
+    String RULE_NAME = "ruleName";
+
+    /**
+     * The constant service name.
+     */
+    String SERVICE_NAME = "serviceName";
+
+    /**
+     * The constant method name.
+     */
+    String METHOD_NAME = "methodName";
 
     /**
      * The constant CLIENT_RESPONSE_ATTR.
@@ -60,6 +90,21 @@ public interface Constants {
     String DUBBO_TAG_ROUTE = "Dubbo_Tag_Route";
 
     /**
+     * The constant DUBBO_REFRENCE_INVOKER.
+     */
+    String DUBBO_REFRENCE_INVOKER = "invoker";
+
+    /**
+     * The constant DUBBO_PROVIDER_VERSION.
+     */
+    String DUBBO_PROVIDER_VERSION = "release";
+
+    /**
+     * The constant DUBBO_PROVIDER_VERSION.
+     */
+    int DUBBO_SUPPORT_ASYNC_VERSION = 2070300;
+
+    /**
      * The constant SOFA_RPC_RESULT.
      */
     String SOFA_RPC_RESULT = "sofa_rpc_result";
@@ -75,9 +120,24 @@ public interface Constants {
     String TARS_RPC_RESULT = "tars_rpc_result";
 
     /**
+     * The constant GRPC_RPC_RESULT.
+     */
+    String GRPC_RPC_RESULT = "grpc_rpc_result";
+
+    /**
+     * The constant MOTAN_RPC_RESULT.
+     */
+    String MOTAN_RPC_RESULT = "motan_rpc_result";
+
+    /**
      * The constant TARS_RPC_RESULT_EMPTY.
      */
     String TARS_RPC_RESULT_EMPTY = "tars has not return value!";
+
+    /**
+     * The constant MOTAN_RPC_RESULT_EMPTY.
+     */
+    String MOTAN_RPC_RESULT_EMPTY = "motan has not return value!";
 
     /**
      * The constant CLIENT_RESPONSE_RESULT_TYPE.
@@ -110,19 +170,9 @@ public interface Constants {
     String HTTP_URL = "httpUrl";
 
     /**
-     * The constant DUBBO_PARAMS.
+     * The constant PARAM_TRANSFORM.
      */
-    String DUBBO_PARAMS = "dubbo_params";
-
-    /**
-     * The constant SOFA_PARAMS.
-     */
-    String SOFA_PARAMS = "sofa_params";
-
-    /**
-     * The constant TARS_PARAMS.
-     */
-    String TARS_PARAMS = "tars_params";
+    String PARAM_TRANSFORM = "param_transform";
 
     /**
      * The constant DECODE.
@@ -284,6 +334,21 @@ public interface Constants {
      */
     String COLONS = ":";
 
+    /**
+     * The constant HYPHEN.
+     */
+    String HYPHEN = "-";
+
+    /**
+     * The constant SlASH.
+     */
+    String SLASH = "/";
+
+    /**
+     * The constant Period.
+     */
+    String PERIOD = ".";
+
     String REQUEST_LATENCY = "REQUEST_LATENCY";
 
     /**
@@ -396,6 +461,51 @@ public interface Constants {
      * default warmup.
      */
     int DEFAULT_WARMUP = 10 * 60 * 1000;
+
+    /**
+     * default register type.
+     */
+    String DEFAULT_REGISTER_TYPE = "http";
+
+    /**
+     * is checked.
+     */
+    String IS_CHECKED = "checked";
+
+    /**
+     * default checked value.
+     */
+    String DEFAULT_CHECK_VALUE = "true";
+
+    /**
+     * zombie check times.
+     */
+    String ZOMBIE_CHECK_TIMES = "zombieCheckTimes";
+
+    /**
+     * default zombie check times value.
+     */
+    String ZOMBIE_CHECK_TIMES_VALUE = "5";
+
+    /**
+     * scheduled time.
+     */
+    String SCHEDULED_TIME = "scheduledTime";
+
+    /**
+     * default scheduled time value.
+     */
+    String SCHEDULED_TIME_VALUE = "10";
+
+    /**
+     * default headerMaxSize value.
+     */
+    int HEADER_MAX_SIZE = 10240;
+
+    /**
+     * default requestMaxSize value.
+     */
+    int REQUEST_MAX_SIZE = 102400;
 
     /**
      * String q.

@@ -17,19 +17,18 @@
 
 package org.dromara.soul.admin.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.dromara.soul.admin.config.SecretProperties;
-import org.dromara.soul.admin.dto.DashboardUserDTO;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.DashboardUserQuery;
-import org.dromara.soul.admin.result.SoulAdminResult;
+import org.dromara.soul.admin.config.properties.SecretProperties;
+import org.dromara.soul.admin.model.dto.DashboardUserDTO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.DashboardUserQuery;
+import org.dromara.soul.admin.model.result.SoulAdminResult;
+import org.dromara.soul.admin.model.vo.DashboardUserEditVO;
+import org.dromara.soul.admin.model.vo.DashboardUserVO;
 import org.dromara.soul.admin.service.DashboardUserService;
 import org.dromara.soul.admin.utils.AesUtils;
 import org.dromara.soul.admin.utils.SoulResultMessage;
-import org.dromara.soul.admin.vo.DashboardUserEditVO;
-import org.dromara.soul.admin.vo.DashboardUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +52,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/dashboardUser")
-@Slf4j
 public class DashboardUserController {
 
     @Resource
@@ -114,7 +112,6 @@ public class DashboardUserController {
         return Optional.ofNullable(dashboardUserDTO).map(item -> {
             item.setPassword(AesUtils.aesEncryption(item.getPassword(), key));
             Integer createCount = dashboardUserService.createOrUpdate(item);
-            log.info("dashboard user created, info:[{}]", item);
             return SoulAdminResult.success(SoulResultMessage.CREATE_SUCCESS, createCount);
         }).orElse(SoulAdminResult.error(SoulResultMessage.DASHBOARD_CREATE_USER_ERROR));
     }
@@ -133,7 +130,6 @@ public class DashboardUserController {
         dashboardUserDTO.setId(id);
         dashboardUserDTO.setPassword(AesUtils.aesEncryption(dashboardUserDTO.getPassword(), key));
         Integer updateCount = dashboardUserService.createOrUpdate(dashboardUserDTO);
-        log.info("dashboard user updated, id:[{}], info:[{}]", id, dashboardUserDTO);
         return SoulAdminResult.success(SoulResultMessage.UPDATE_SUCCESS, updateCount);
     }
 
@@ -146,7 +142,6 @@ public class DashboardUserController {
     @DeleteMapping("/batch")
     public SoulAdminResult deleteDashboardUser(@RequestBody final List<String> ids) {
         Integer deleteCount = dashboardUserService.delete(ids);
-        log.info("dashboard users deleted, id:[{}]", ids);
         return SoulAdminResult.success(SoulResultMessage.DELETE_SUCCESS, deleteCount);
     }
 }

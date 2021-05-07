@@ -17,9 +17,9 @@
 
 package org.dromara.soul.admin.service;
 
-import org.dromara.soul.admin.result.SoulAdminResult;
+import org.dromara.soul.admin.model.result.SoulAdminResult;
 import org.dromara.soul.admin.service.sync.SyncDataServiceImpl;
-import org.dromara.soul.admin.vo.PluginVO;
+import org.dromara.soul.admin.model.vo.PluginVO;
 import org.dromara.soul.common.dto.ConditionData;
 import org.dromara.soul.common.dto.PluginData;
 import org.dromara.soul.common.dto.RuleData;
@@ -133,7 +133,7 @@ public final class SyncDataServiceTest {
         selectorData.setContinued(true);
         selectorData.setEnabled(true);
         selectorData.setHandle("divide");
-        selectorData.setLoged(true);
+        selectorData.setLogged(true);
         selectorData.setMatchMode(1);
         selectorData.setPluginId("5");
         selectorData.setName("divide");

@@ -17,25 +17,17 @@
 
 package org.dromara.soul.plugin.ratelimiter;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
 import org.dromara.soul.common.dto.RuleData;
 import org.dromara.soul.common.dto.SelectorData;
 import org.dromara.soul.common.dto.convert.RateLimiterHandle;
 import org.dromara.soul.common.enums.PluginEnum;
-import org.dromara.soul.common.utils.GsonUtils;
 import org.dromara.soul.plugin.api.SoulPluginChain;
 import org.dromara.soul.plugin.api.result.DefaultSoulResult;
 import org.dromara.soul.plugin.api.result.SoulResult;
-import org.dromara.soul.plugin.base.utils.SpringBeanUtils;
+import org.dromara.soul.plugin.api.utils.SpringBeanUtils;
+import org.dromara.soul.plugin.ratelimiter.cache.RatelimiterRuleHandleCache;
 import org.dromara.soul.plugin.ratelimiter.executor.RedisRateLimiter;
+import org.dromara.soul.plugin.ratelimiter.handler.RateLimiterPluginDataHandler;
 import org.dromara.soul.plugin.ratelimiter.response.RateLimiterResponse;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,6 +39,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * RateLimiterPlugin test.
@@ -84,7 +83,7 @@ public final class RateLimiterPluginTest {
     @Test
     public void doExecuteAllowedTest() {
         doExecutePreInit();
-        when(redisRateLimiter.isAllowed(anyString(), anyDouble(), anyDouble())).thenReturn(
+        when(redisRateLimiter.isAllowed(anyString(), any(RateLimiterHandle.class))).thenReturn(
                 Mono.just(new RateLimiterResponse(true, 1)));
         Mono<Void> result = rateLimiterPlugin.doExecute(exchange, chain, selectorData, ruleData);
         StepVerifier.create(result).expectSubscription().verifyComplete();
@@ -96,7 +95,7 @@ public final class RateLimiterPluginTest {
     @Test
     public void doExecuteNotAllowedTest() {
         doExecutePreInit();
-        when(redisRateLimiter.isAllowed(anyString(), anyDouble(), anyDouble())).thenReturn(
+        when(redisRateLimiter.isAllowed(anyString(), any(RateLimiterHandle.class))).thenReturn(
                 Mono.just(new RateLimiterResponse(false, 1)));
         ConfigurableApplicationContext context = mock(ConfigurableApplicationContext.class);
         when(context.getBean(SoulResult.class)).thenReturn(new DefaultSoulResult());
@@ -128,8 +127,8 @@ public final class RateLimiterPluginTest {
     private void doExecutePreInit() {
         RateLimiterHandle rateLimiterHandle = mockRateLimiterHandler();
         when(ruleData.getId()).thenReturn("test1");
-        when(ruleData.getHandle()).thenReturn(GsonUtils.getInstance().toJson(rateLimiterHandle));
         when(chain.execute(any())).thenReturn(Mono.empty());
+        RatelimiterRuleHandleCache.getInstance().cachedHandle(RateLimiterPluginDataHandler.getCacheKeyName(ruleData), rateLimiterHandle);
     }
 
     /**

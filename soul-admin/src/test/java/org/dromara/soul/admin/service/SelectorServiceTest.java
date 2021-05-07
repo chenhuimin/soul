@@ -18,25 +18,26 @@
 package org.dromara.soul.admin.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.soul.admin.dto.SelectorConditionDTO;
-import org.dromara.soul.admin.dto.SelectorDTO;
-import org.dromara.soul.admin.entity.PluginDO;
-import org.dromara.soul.admin.entity.RuleDO;
-import org.dromara.soul.admin.entity.SelectorDO;
+import org.dromara.soul.admin.mapper.DataPermissionMapper;
+import org.dromara.soul.admin.model.dto.SelectorConditionDTO;
+import org.dromara.soul.admin.model.dto.SelectorDTO;
+import org.dromara.soul.admin.model.entity.PluginDO;
+import org.dromara.soul.admin.model.entity.RuleDO;
+import org.dromara.soul.admin.model.entity.SelectorDO;
 import org.dromara.soul.admin.mapper.RuleConditionMapper;
 import org.dromara.soul.admin.mapper.RuleMapper;
 import org.dromara.soul.admin.mapper.SelectorMapper;
 import org.dromara.soul.admin.mapper.SelectorConditionMapper;
 import org.dromara.soul.admin.mapper.PluginMapper;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.RuleConditionQuery;
-import org.dromara.soul.admin.query.RuleQuery;
-import org.dromara.soul.admin.query.SelectorQuery;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.RuleConditionQuery;
+import org.dromara.soul.admin.model.query.RuleQuery;
+import org.dromara.soul.admin.model.query.SelectorQuery;
 import org.dromara.soul.admin.service.impl.SelectorServiceImpl;
 import org.dromara.soul.admin.service.impl.UpstreamCheckService;
-import org.dromara.soul.admin.vo.SelectorConditionVO;
-import org.dromara.soul.admin.vo.SelectorVO;
+import org.dromara.soul.admin.model.vo.SelectorConditionVO;
+import org.dromara.soul.admin.model.vo.SelectorVO;
 import org.dromara.soul.common.dto.SelectorData;
 import org.dromara.soul.common.enums.PluginEnum;
 import org.dromara.soul.common.enums.SelectorTypeEnum;
@@ -95,6 +96,9 @@ public final class SelectorServiceTest {
     private RuleConditionMapper ruleConditionMapper;
 
     @Mock
+    private DataPermissionMapper dataPermissionMapper;
+
+    @Mock
     private ApplicationEventPublisher eventPublisher;
 
     @Mock
@@ -103,7 +107,7 @@ public final class SelectorServiceTest {
     @Before
     public void setUp() {
         selectorService = new SelectorServiceImpl(selectorMapper, selectorConditionMapper, pluginMapper,
-                ruleMapper, ruleConditionMapper, eventPublisher, upstreamCheckService);
+                ruleMapper, ruleConditionMapper, eventPublisher, dataPermissionMapper, upstreamCheckService);
     }
 
     @Test
@@ -136,7 +140,7 @@ public final class SelectorServiceTest {
 
         // mock objects for test delete rule and ruleCondition.
         List<RuleDO> mockedRuleDOList = mock(List.class);
-        when(ruleMapper.selectByQuery(new RuleQuery(correctId, null))).thenReturn(mockedRuleDOList);
+        when(ruleMapper.selectByQuery(new RuleQuery(correctId, null, null))).thenReturn(mockedRuleDOList);
 
         // mock for test for-each statement.
         RuleDO mockedRuleDo = mock(RuleDO.class);

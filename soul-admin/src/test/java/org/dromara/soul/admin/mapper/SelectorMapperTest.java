@@ -18,9 +18,9 @@
 package org.dromara.soul.admin.mapper;
 
 import org.dromara.soul.admin.AbstractSpringIntegrationTest;
-import org.dromara.soul.admin.entity.SelectorDO;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.SelectorQuery;
+import org.dromara.soul.admin.model.entity.SelectorDO;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.SelectorQuery;
 import org.dromara.soul.common.utils.UUIDUtils;
 import org.junit.Test;
 
@@ -64,7 +64,7 @@ public final class SelectorMapperTest extends AbstractSpringIntegrationTest {
         int insert = selectorMapper.insert(selectorDO);
         assertEquals(1, insert);
 
-        SelectorQuery query = new SelectorQuery(selectorDO.getPluginId(), new PageParameter());
+        SelectorQuery query = new SelectorQuery(selectorDO.getPluginId(), selectorDO.getName(), new PageParameter());
         List<SelectorDO> list = selectorMapper.selectByQuery(query);
         assertNotNull(list);
         assertEquals(list.size(), 1);
@@ -109,7 +109,7 @@ public final class SelectorMapperTest extends AbstractSpringIntegrationTest {
         int insert = selectorMapper.insert(selectorDO);
         assertEquals(1, insert);
 
-        SelectorQuery query = new SelectorQuery(selectorDO.getPluginId(), new PageParameter());
+        SelectorQuery query = new SelectorQuery(selectorDO.getPluginId(), selectorDO.getName(), new PageParameter());
         Integer count = selectorMapper.countByQuery(query);
         assertNotNull(count);
         assertEquals(new Integer(1), count);

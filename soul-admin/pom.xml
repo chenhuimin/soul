@@ -20,21 +20,61 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>soul</artifactId>
         <groupId>org.dromara</groupId>
-        <version>2.2.1</version>
+        <artifactId>soul</artifactId>
+        <version>2.3.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>soul-admin</artifactId>
-
-    <properties>
-        <nacos-client.version>1.2.0</nacos-client.version>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.dromara</groupId>
             <artifactId>soul-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>soul-disruptor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>soul-register-server-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>soul-register-server-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>soul-register-server-etcd</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>soul-register-server-consul</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!--soul consul register start-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-consul-discovery</artifactId>-->
+<!--            <version>2.2.6.RELEASE</version>-->
+<!--        </dependency>-->
+        <!--soul consul register end-->
+
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>soul-register-server-nacos</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -98,11 +138,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.47</version>
@@ -121,7 +156,11 @@
         <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-client</artifactId>
-            <version>${nacos-client.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-ldap</artifactId>
         </dependency>
 
         <dependency>
@@ -189,6 +228,11 @@
             <version>${curator-test.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.6</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -210,45 +254,6 @@
                 </executions>
             </plugin>
 
-            <!--This is to package the frontend, if you don't need to configure frontend.plugin.skip=true locally.-->
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>${frontend-maven-plugin.version}</version>
-                <configuration>
-                    <workingDirectory>${project.parent.basedir}/soul-dashboard</workingDirectory>
-                    <nodeVersion>${frontend-maven-plugin.node.version}</nodeVersion>
-                    <skip>${frontend.plugin.skip}</skip>
-                </configuration>
-                <executions>
-                    <!--If you have installed the nodejs environment locally, this step can also be annotated.-->
-                    <execution>
-                        <id>install node and npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>npm install</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>install --registry=https://registry.npmjs.org/</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm run build</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run build</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -256,20 +261,6 @@
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <useDefaultDelimiters>true</useDefaultDelimiters>
-                    <resources>
-                        <resource>
-                            <targetPath>${basedir}/src/main/resources/static</targetPath>
-                            <directory>${project.parent.basedir}/soul-dashboard/dist</directory>
-                        </resource>
-                        <resource>
-                            <targetPath>${basedir}/target/classes</targetPath>
-                            <directory>src/main/resources</directory>
-                        </resource>
-                        <resource>
-                            <targetPath>${basedir}/target/test-classes</targetPath>
-                            <directory>src/test/resources</directory>
-                        </resource>
-                    </resources>
                 </configuration>
             </plugin>
         </plugins>

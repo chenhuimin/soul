@@ -17,28 +17,35 @@
 
 package org.dromara.soul.admin.service.impl;
 
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.soul.admin.config.SecretProperties;
-import org.dromara.soul.admin.dto.DashboardUserDTO;
-import org.dromara.soul.admin.dto.UserRoleDTO;
-import org.dromara.soul.admin.entity.DashboardUserDO;
-import org.dromara.soul.admin.entity.UserRoleDO;
+import org.dromara.soul.admin.config.properties.LdapProperties;
+import org.dromara.soul.admin.config.properties.SecretProperties;
 import org.dromara.soul.admin.mapper.DashboardUserMapper;
-import org.dromara.soul.admin.mapper.PermissionMapper;
-import org.dromara.soul.admin.mapper.ResourceMapper;
+import org.dromara.soul.admin.mapper.DataPermissionMapper;
 import org.dromara.soul.admin.mapper.RoleMapper;
 import org.dromara.soul.admin.mapper.UserRoleMapper;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageResultUtils;
-import org.dromara.soul.admin.query.DashboardUserQuery;
+import org.dromara.soul.admin.model.dto.DashboardUserDTO;
+import org.dromara.soul.admin.model.dto.UserRoleDTO;
+import org.dromara.soul.admin.model.entity.DashboardUserDO;
+import org.dromara.soul.admin.model.entity.RoleDO;
+import org.dromara.soul.admin.model.entity.UserRoleDO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageResultUtils;
+import org.dromara.soul.admin.model.query.DashboardUserQuery;
+import org.dromara.soul.admin.model.vo.DashboardUserEditVO;
+import org.dromara.soul.admin.model.vo.DashboardUserVO;
+import org.dromara.soul.admin.model.vo.LoginDashboardUserVO;
+import org.dromara.soul.admin.model.vo.RoleVO;
 import org.dromara.soul.admin.service.DashboardUserService;
 import org.dromara.soul.admin.utils.AesUtils;
-import org.dromara.soul.admin.vo.DashboardUserEditVO;
-import org.dromara.soul.admin.vo.DashboardUserVO;
-import org.dromara.soul.admin.vo.LoginDashboardUserVO;
-import org.dromara.soul.admin.vo.RoleVO;
+import org.dromara.soul.common.constant.AdminConstants;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.NameNotFoundException;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -54,6 +61,7 @@ import java.util.stream.Collectors;
  * @author jiangxiaofeng(Nicholas)
  */
 @Service("dashboardUserService")
+@Slf4j
 public class DashboardUserServiceImpl implements DashboardUserService {
 
     @Resource
@@ -65,18 +73,21 @@ public class DashboardUserServiceImpl implements DashboardUserService {
 
     private final RoleMapper roleMapper;
 
-    private final ResourceMapper resourceMapper;
+    private final DataPermissionMapper dataPermissionMapper;
 
-    private final PermissionMapper permissionMapper;
+    @Autowired(required = false)
+    private LdapProperties ldapProperties;
+
+    @Autowired(required = false)
+    private LdapTemplate ldapTemplate;
 
     @Autowired(required = false)
     public DashboardUserServiceImpl(final DashboardUserMapper dashboardUserMapper, final UserRoleMapper userRoleMapper,
-                                    final RoleMapper roleMapper, final ResourceMapper resourceMapper, final PermissionMapper permissionMapper) {
+                                    final RoleMapper roleMapper, final DataPermissionMapper dataPermissionMapper) {
         this.dashboardUserMapper = dashboardUserMapper;
         this.userRoleMapper = userRoleMapper;
         this.roleMapper = roleMapper;
-        this.resourceMapper = resourceMapper;
-        this.permissionMapper = permissionMapper;
+        this.dataPermissionMapper = dataPermissionMapper;
     }
 
     /**
@@ -93,7 +104,7 @@ public class DashboardUserServiceImpl implements DashboardUserService {
             bindUserRole(dashboardUserDO.getId(), dashboardUserDTO.getRoles());
             return dashboardUserMapper.insertSelective(dashboardUserDO);
         }
-        if (!dashboardUserDTO.getUserName().equals("admin")) {
+        if (!AdminConstants.ADMIN_NAME.equals(dashboardUserDTO.getUserName())) {
             userRoleMapper.deleteByUserId(dashboardUserDTO.getId());
         }
         if (CollectionUtils.isNotEmpty(dashboardUserDTO.getRoles())) {
@@ -113,12 +124,12 @@ public class DashboardUserServiceImpl implements DashboardUserService {
         int dashboardUserCount = 0;
         for (String id : ids) {
             DashboardUserDO dashboardUserDO = dashboardUserMapper.selectById(id);
-            if (!ObjectUtils.isEmpty(dashboardUserDO)) {
-                if (dashboardUserDO.getUserName().equals("admin")) {
-                    continue;
-                }
+            if (!ObjectUtils.isEmpty(dashboardUserDO) && AdminConstants.ADMIN_NAME.equals(dashboardUserDO.getUserName())) {
+                continue;
             }
             dashboardUserCount += dashboardUserMapper.delete(id);
+            userRoleMapper.deleteByUserId(id);
+            dataPermissionMapper.deleteByUserId(id);
         }
         return dashboardUserCount;
     }
@@ -150,6 +161,17 @@ public class DashboardUserServiceImpl implements DashboardUserService {
     }
 
     /**
+     * find dashboard user by username.
+     *
+     * @param userName user name
+     * @return {@linkplain DashboardUserVO}
+     */
+    @Override
+    public DashboardUserVO findByUserName(final String userName) {
+        return DashboardUserVO.buildDashboardUserVO(dashboardUserMapper.selectByUserName(userName));
+    }
+
+    /**
      * find page of dashboard user by query.
      *
      * @param dashboardUserQuery {@linkplain DashboardUserQuery}
@@ -175,6 +197,48 @@ public class DashboardUserServiceImpl implements DashboardUserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public LoginDashboardUserVO login(final String userName, final String password) {
+        DashboardUserVO dashboardUserVO = null;
+        if (Objects.nonNull(ldapTemplate)) {
+            dashboardUserVO = loginByLdap(userName, password);
+        }
+        if (Objects.isNull(dashboardUserVO)) {
+            dashboardUserVO = loginByDatabase(userName, password);
+        }
+        return LoginDashboardUserVO.buildLoginDashboardUserVO(dashboardUserVO);
+    }
+
+    private DashboardUserVO loginByLdap(final String userName, final String password) {
+        String key = secretProperties.getKey();
+        String searchBase = String.format("%s=%s,%s", ldapProperties.getLoginField(), userName, ldapProperties.getBaseDn());
+        String filter = String.format("(objectClass=%s)", ldapProperties.getObjectClass());
+        try {
+            DashboardUserVO dashboardUserVO = null;
+            if (ldapTemplate.authenticate(searchBase, filter, password)) {
+                dashboardUserVO = findByUserName(userName);
+                if (Objects.isNull(dashboardUserVO)) {
+                    RoleDO role = roleMapper.findByRoleName("default");
+                    DashboardUserDTO dashboardUserDTO = DashboardUserDTO.builder()
+                            .userName(userName)
+                            .password(AesUtils.aesEncryption(password, key))
+                            .role(1)
+                            .roles(Lists.newArrayList(role.getId()))
+                            .enabled(true)
+                            .build();
+                    createOrUpdate(dashboardUserDTO);
+                    dashboardUserVO = new DashboardUserVO();
+                    BeanUtils.copyProperties(dashboardUserDTO, dashboardUserVO);
+                }
+            }
+            return dashboardUserVO;
+        } catch (NameNotFoundException e) {
+            return null;
+        } catch (Exception e) {
+            log.error("ldap verify error.", e);
+            return null;
+        }
+    }
+
+    private DashboardUserVO loginByDatabase(final String userName, final String password) {
         String key = secretProperties.getKey();
         DashboardUserVO dashboardUserVO = findByQuery(userName, password);
         if (!ObjectUtils.isEmpty(dashboardUserVO)) {
@@ -188,7 +252,7 @@ public class DashboardUserServiceImpl implements DashboardUserService {
         } else {
             dashboardUserVO = findByQuery(userName, AesUtils.aesEncryption(password, key));
         }
-        return LoginDashboardUserVO.buildLoginDashboardUserVO(dashboardUserVO);
+        return dashboardUserVO;
     }
 
     /**

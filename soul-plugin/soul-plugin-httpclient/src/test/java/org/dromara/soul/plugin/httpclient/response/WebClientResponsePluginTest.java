@@ -23,7 +23,7 @@ import org.dromara.soul.common.enums.RpcTypeEnum;
 import org.dromara.soul.plugin.api.SoulPluginChain;
 import org.dromara.soul.plugin.api.context.SoulContext;
 import org.dromara.soul.plugin.api.result.SoulResult;
-import org.dromara.soul.plugin.base.utils.SpringBeanUtils;
+import org.dromara.soul.plugin.api.utils.SpringBeanUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,9 +66,7 @@ public final class WebClientResponsePluginTest {
         ConfigurableApplicationContext context = mock(ConfigurableApplicationContext.class);
         SpringBeanUtils.getInstance().setCfgContext(context);
         when(context.getBean(SoulResult.class)).thenReturn(mock(SoulResult.class));
-
         chain = mock(SoulPluginChain.class);
-
         webClientResponsePlugin = new WebClientResponsePlugin();
     }
 

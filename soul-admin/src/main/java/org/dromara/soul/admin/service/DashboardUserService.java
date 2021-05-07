@@ -17,12 +17,12 @@
 
 package org.dromara.soul.admin.service;
 
-import org.dromara.soul.admin.dto.DashboardUserDTO;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.query.DashboardUserQuery;
-import org.dromara.soul.admin.vo.DashboardUserEditVO;
-import org.dromara.soul.admin.vo.DashboardUserVO;
-import org.dromara.soul.admin.vo.LoginDashboardUserVO;
+import org.dromara.soul.admin.model.dto.DashboardUserDTO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.query.DashboardUserQuery;
+import org.dromara.soul.admin.model.vo.DashboardUserEditVO;
+import org.dromara.soul.admin.model.vo.DashboardUserVO;
+import org.dromara.soul.admin.model.vo.LoginDashboardUserVO;
 
 import java.util.List;
 
@@ -56,6 +56,14 @@ public interface DashboardUserService {
      * @return {@linkplain DashboardUserVO}
      */
     DashboardUserEditVO findById(String id);
+
+    /**
+     * find dashboard user by username.
+     *
+     * @param username username.
+     * @return {@linkplain DashboardUserVO}
+     */
+    DashboardUserVO findByUserName(String username);
 
     /**
      * find dashboard user by query.

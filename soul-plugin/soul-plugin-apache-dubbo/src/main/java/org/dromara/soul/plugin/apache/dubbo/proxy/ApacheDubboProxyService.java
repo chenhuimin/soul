@@ -17,15 +17,14 @@
 
 package org.dromara.soul.plugin.apache.dubbo.proxy;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.dubbo.common.Version;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.config.ReferenceConfig;
+import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.service.GenericException;
 import org.apache.dubbo.rpc.service.GenericService;
@@ -34,10 +33,14 @@ import org.dromara.soul.common.dto.MetaData;
 import org.dromara.soul.common.enums.ResultEnum;
 import org.dromara.soul.common.exception.SoulException;
 import org.dromara.soul.common.utils.ParamCheckUtils;
+import org.dromara.soul.common.utils.ReflectUtils;
 import org.dromara.soul.plugin.apache.dubbo.cache.ApplicationConfigCache;
-import org.dromara.soul.plugin.api.dubbo.DubboParamResolveService;
+import org.dromara.soul.plugin.api.param.BodyParamResolveService;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * dubbo proxy service is  use GenericService.
@@ -47,15 +50,15 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ApacheDubboProxyService {
 
-    private final DubboParamResolveService dubboParamResolveService;
+    private final BodyParamResolveService bodyParamResolveService;
 
     /**
      * Instantiates a new Dubbo proxy service.
      *
-     * @param dubboParamResolveService the generic param resolve service
+     * @param bodyParamResolveService the generic param resolve service
      */
-    public ApacheDubboProxyService(final DubboParamResolveService dubboParamResolveService) {
-        this.dubboParamResolveService = dubboParamResolveService;
+    public ApacheDubboProxyService(final BodyParamResolveService bodyParamResolveService) {
+        this.bodyParamResolveService = bodyParamResolveService;
     }
 
     /**
@@ -83,9 +86,19 @@ public class ApacheDubboProxyService {
         if (ParamCheckUtils.dubboBodyIsEmpty(body)) {
             pair = new ImmutablePair<>(new String[]{}, new Object[]{});
         } else {
-            pair = dubboParamResolveService.buildParameter(body, metaData.getParameterTypes());
+            pair = bodyParamResolveService.buildParameter(body, metaData.getParameterTypes());
         }
-        CompletableFuture<Object> future = genericService.$invokeAsync(metaData.getMethodName(), pair.getLeft(), pair.getRight());
+        CompletableFuture<Object> future;
+        if (isProviderSupportAsync(reference)) {
+            future = genericService.$invokeAsync(metaData.getMethodName(), pair.getLeft(), pair.getRight());
+        } else {
+            Object data = genericService.$invoke(metaData.getMethodName(), pair.getLeft(), pair.getRight());
+            if (data instanceof CompletableFuture) {
+                future = (CompletableFuture<Object>) data;
+            } else {
+                future = CompletableFuture.completedFuture(data);
+            }
+        }
         return Mono.fromFuture(future.thenApply(ret -> {
             if (Objects.isNull(ret)) {
                 ret = Constants.DUBBO_RPC_RESULT_EMPTY;
@@ -94,5 +107,22 @@ public class ApacheDubboProxyService {
             exchange.getAttributes().put(Constants.CLIENT_RESPONSE_RESULT_TYPE, ResultEnum.SUCCESS.getName());
             return ret;
         })).onErrorMap(exception -> exception instanceof GenericException ? new SoulException(((GenericException) exception).getExceptionMessage()) : new SoulException(exception));
+    }
+
+    private boolean isProviderSupportAsync(final ReferenceConfig<GenericService> reference) {
+        boolean support = false;
+        try {
+            Invoker invoker = (Invoker) ReflectUtils.getFieldValue(reference, Constants.DUBBO_REFRENCE_INVOKER);
+            int sdkVersion = Version.getIntVersion(invoker.getUrl().getParameter(Constants.DUBBO_PROVIDER_VERSION));
+            //dubbo sdk only supports $invokeAsync after version 2.7.3
+            if (sdkVersion >= Constants.DUBBO_SUPPORT_ASYNC_VERSION) {
+                support = true;
+            }
+        } catch (Exception e) {
+            if (log.isDebugEnabled()) {
+                log.debug("check dubbo provider version ex:{}", e.getMessage());
+            }
+        }
+        return support;
     }
 }

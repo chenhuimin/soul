@@ -18,6 +18,7 @@
 package org.dromara.soul.examples.dubbo.api.service;
 
 import org.dromara.soul.examples.dubbo.api.entity.DubboTest;
+import org.dromara.soul.examples.dubbo.api.entity.ListResp;
 
 /**
  * DubboTestService.
@@ -28,7 +29,6 @@ public interface DubboTestService {
 
     /**
      * find by id.
-     * <p>
      * body：{"id":"1223"}
      *
      * @param id id
@@ -45,7 +45,6 @@ public interface DubboTestService {
 
     /**
      * Insert dubbo test.
-     *
      * body :{"id":"122344","name":"xiaoyu"}
      *
      * @param dubboTest the dubbo test
@@ -53,4 +52,5 @@ public interface DubboTestService {
      */
     DubboTest insert(DubboTest dubboTest);
 
+    ListResp findList();
 }

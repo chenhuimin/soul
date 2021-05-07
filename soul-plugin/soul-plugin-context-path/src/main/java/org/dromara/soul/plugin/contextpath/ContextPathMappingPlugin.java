@@ -22,22 +22,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.dromara.soul.common.constant.Constants;
 import org.dromara.soul.common.dto.RuleData;
 import org.dromara.soul.common.dto.SelectorData;
-import org.dromara.soul.common.dto.convert.ContextMappingHandle;
+import org.dromara.soul.common.dto.convert.rule.impl.ContextMappingHandle;
 import org.dromara.soul.common.enums.PluginEnum;
 import org.dromara.soul.common.enums.RpcTypeEnum;
-import org.dromara.soul.common.utils.GsonUtils;
 import org.dromara.soul.plugin.api.SoulPluginChain;
 import org.dromara.soul.plugin.api.context.SoulContext;
-import org.dromara.soul.plugin.api.result.SoulResultEnum;
 import org.dromara.soul.plugin.base.AbstractSoulPlugin;
-import org.dromara.soul.plugin.base.utils.SoulResultWrap;
-import org.dromara.soul.plugin.base.utils.WebFluxResultUtils;
+import org.dromara.soul.plugin.contextpath.cache.ContextPathRuleHandleCache;
+import org.dromara.soul.plugin.contextpath.handler.ContextPathMappingPluginDataHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * ContextPathMapping Plugin.
@@ -49,20 +45,14 @@ public class ContextPathMappingPlugin extends AbstractSoulPlugin {
 
     @Override
     protected Mono<Void> doExecute(final ServerWebExchange exchange, final SoulPluginChain chain, final SelectorData selector, final RuleData rule) {
-        final SoulContext soulContext = exchange.getAttribute(Constants.CONTEXT);
+        SoulContext soulContext = exchange.getAttribute(Constants.CONTEXT);
         assert soulContext != null;
-        final String handle = rule.getHandle();
-        final ContextMappingHandle contextMappingHandle = GsonUtils.getInstance().fromJson(handle, ContextMappingHandle.class);
+        ContextMappingHandle contextMappingHandle = ContextPathRuleHandleCache.getInstance().obtainHandle(ContextPathMappingPluginDataHandler.getCacheKeyName(rule));
         if (Objects.isNull(contextMappingHandle) || StringUtils.isBlank(contextMappingHandle.getContextPath())) {
             log.error("context path mapping rule configuration is null ：{}", rule);
             return chain.execute(exchange);
         }
-        //check the context path illegal
-        if (!soulContext.getPath().startsWith(contextMappingHandle.getContextPath())) {
-            Object error = SoulResultWrap.error(SoulResultEnum.CONTEXT_PATH_ERROR.getCode(), SoulResultEnum.CONTEXT_PATH_ERROR.getMsg(), null);
-            return WebFluxResultUtils.result(exchange, error);
-        }
-        this.buildContextPath(soulContext, contextMappingHandle);
+        buildContextPath(soulContext, contextMappingHandle);
         return chain.execute(exchange);
     }
 
@@ -78,7 +68,7 @@ public class ContextPathMappingPlugin extends AbstractSoulPlugin {
 
     @Override
     public Boolean skip(final ServerWebExchange exchange) {
-        final SoulContext body = exchange.getAttribute(Constants.CONTEXT);
+        SoulContext body = exchange.getAttribute(Constants.CONTEXT);
         return Objects.equals(Objects.requireNonNull(body).getRpcType(), RpcTypeEnum.DUBBO.getName());
     }
 
@@ -89,15 +79,20 @@ public class ContextPathMappingPlugin extends AbstractSoulPlugin {
      * @param handle  handle
      */
     private void buildContextPath(final SoulContext context, final ContextMappingHandle handle) {
-        context.setContextPath(handle.getContextPath());
-        if (!StringUtils.isBlank(handle.getRealUrl())) {
+        String realURI = "";
+        if (StringUtils.isNoneBlank(handle.getContextPath())) {
+            context.setContextPath(handle.getContextPath());
+            context.setModule(handle.getContextPath());
+            realURI = context.getPath().substring(handle.getContextPath().length());
+        } else {
+            if (StringUtils.isNoneBlank(handle.getAddPrefix())) {
+                realURI = handle.getAddPrefix() + context.getPath();
+            }
+        }
+        context.setRealUrl(realURI);
+        if (StringUtils.isNoneBlank(handle.getRealUrl())) {
             log.info("context path mappingPlugin replaced old :{} , real:{}", context.getRealUrl(), handle.getRealUrl());
             context.setRealUrl(handle.getRealUrl());
-            return;
         }
-        Optional<String> optional = Arrays.stream(context.getPath()
-                .split(handle.getContextPath()))
-                .reduce((first, last) -> last);
-        optional.ifPresent(context::setRealUrl);
     }
 }

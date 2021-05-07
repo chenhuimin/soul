@@ -18,22 +18,23 @@
 package org.dromara.soul.admin.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.soul.admin.dto.RuleConditionDTO;
-import org.dromara.soul.admin.dto.RuleDTO;
-import org.dromara.soul.admin.entity.PluginDO;
-import org.dromara.soul.admin.entity.RuleConditionDO;
-import org.dromara.soul.admin.entity.RuleDO;
-import org.dromara.soul.admin.entity.SelectorDO;
+import org.dromara.soul.admin.mapper.DataPermissionMapper;
+import org.dromara.soul.admin.model.dto.RuleConditionDTO;
+import org.dromara.soul.admin.model.dto.RuleDTO;
+import org.dromara.soul.admin.model.entity.PluginDO;
+import org.dromara.soul.admin.model.entity.RuleConditionDO;
+import org.dromara.soul.admin.model.entity.RuleDO;
+import org.dromara.soul.admin.model.entity.SelectorDO;
 import org.dromara.soul.admin.mapper.PluginMapper;
 import org.dromara.soul.admin.mapper.RuleConditionMapper;
 import org.dromara.soul.admin.mapper.RuleMapper;
 import org.dromara.soul.admin.mapper.SelectorMapper;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.RuleConditionQuery;
-import org.dromara.soul.admin.query.RuleQuery;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.RuleConditionQuery;
+import org.dromara.soul.admin.model.query.RuleQuery;
 import org.dromara.soul.admin.service.impl.RuleServiceImpl;
-import org.dromara.soul.admin.vo.RuleVO;
+import org.dromara.soul.admin.model.vo.RuleVO;
 import org.dromara.soul.common.dto.RuleData;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,9 +85,12 @@ public final class RuleServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    private DataPermissionMapper dataPermissionMapper;
+
     @Before
     public void setUp() {
-        ruleService = new RuleServiceImpl(ruleMapper, ruleConditionMapper, selectorMapper, pluginMapper, eventPublisher);
+        ruleService = new RuleServiceImpl(ruleMapper, ruleConditionMapper, selectorMapper, pluginMapper, dataPermissionMapper, eventPublisher);
     }
 
     @Test
@@ -131,7 +135,7 @@ public final class RuleServiceTest {
         parameter.setPageSize(5);
         parameter.setTotalCount(10);
         parameter.setTotalPage(parameter.getTotalCount() / parameter.getPageSize());
-        RuleQuery ruleQuery = new RuleQuery("456", parameter);
+        RuleQuery ruleQuery = new RuleQuery("456", null, parameter);
         given(this.ruleMapper.countByQuery(ruleQuery)).willReturn(10);
         List<RuleDO> ruleDOList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -235,6 +239,7 @@ public final class RuleServiceTest {
         RuleDTO ruleDTO = RuleDTO.builder()
                 .selectorId("456")
                 .matchMode(0)
+                .handle("{\"test1\":\"\"}")
                 .build();
         if (StringUtils.isNotBlank(id)) {
             ruleDTO.setId(id);
@@ -253,6 +258,7 @@ public final class RuleServiceTest {
         RuleDTO ruleDTO = RuleDTO.builder()
                 .selectorId("456")
                 .matchMode(0)
+                .handle("{\"test1\":\"\"}")
                 .build();
         if (StringUtils.isNotBlank(id)) {
             ruleDTO.setId(id);

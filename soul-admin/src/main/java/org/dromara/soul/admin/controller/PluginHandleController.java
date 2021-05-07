@@ -17,13 +17,13 @@
 
 package org.dromara.soul.admin.controller;
 
-import org.dromara.soul.admin.dto.PluginHandleDTO;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.PluginHandleQuery;
-import org.dromara.soul.admin.result.SoulAdminResult;
+import org.dromara.soul.admin.model.dto.PluginHandleDTO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.PluginHandleQuery;
+import org.dromara.soul.admin.model.result.SoulAdminResult;
 import org.dromara.soul.admin.service.PluginHandleService;
-import org.dromara.soul.admin.vo.PluginHandleVO;
+import org.dromara.soul.admin.model.vo.PluginHandleVO;
 import org.dromara.soul.admin.utils.SoulResultMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,13 +55,14 @@ public class PluginHandleController {
     /**
      * query plugin handle by plugin id.
      * @param pluginId  plugin id.
+     * @param field  plugin field.
      * @param currentPage  current page.
      * @param pageSize page size
      * @return {@linkplain SoulAdminResult}
      */
     @GetMapping("")
-    public SoulAdminResult queryPluginHandles(final String pluginId, final Integer currentPage, final Integer pageSize) {
-        CommonPager<PluginHandleVO> commonPager = pluginHandleService.listByPage(new PluginHandleQuery(pluginId, null, new PageParameter(currentPage, pageSize)));
+    public SoulAdminResult queryPluginHandles(final String pluginId, final String field, final Integer currentPage, final Integer pageSize) {
+        CommonPager<PluginHandleVO> commonPager = pluginHandleService.listByPage(new PluginHandleQuery(pluginId, field, null, new PageParameter(currentPage, pageSize)));
         return SoulAdminResult.success(SoulResultMessage.QUERY_SUCCESS, commonPager);
     }
 

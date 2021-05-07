@@ -17,13 +17,13 @@
 
 package org.dromara.soul.admin.controller;
 
-import org.dromara.soul.admin.config.JwtProperties;
+import org.dromara.soul.admin.config.properties.JwtProperties;
 import org.dromara.soul.admin.service.DashboardUserService;
 import org.dromara.soul.admin.service.EnumService;
 import org.dromara.soul.admin.spring.SpringBeanUtils;
 import org.dromara.soul.admin.utils.SoulResultMessage;
-import org.dromara.soul.admin.vo.DashboardUserVO;
-import org.dromara.soul.admin.vo.LoginDashboardUserVO;
+import org.dromara.soul.admin.model.vo.DashboardUserVO;
+import org.dromara.soul.admin.model.vo.LoginDashboardUserVO;
 import org.dromara.soul.common.exception.CommonErrorCode;
 import org.dromara.soul.common.utils.DateUtils;
 import org.junit.Before;

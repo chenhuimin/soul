@@ -26,12 +26,12 @@ import java.time.Duration;
 
 /**
  * The rateLimiter configuration for redis.
- *
- * @author xiaoyu(Myth)
  */
 @Data
 @EqualsAndHashCode
 public class RateLimiterConfig implements Serializable {
+
+    private static final long serialVersionUID = -3535286136370323953L;
 
     private Integer database = 0;
 

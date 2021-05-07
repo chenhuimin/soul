@@ -17,13 +17,13 @@
 
 package org.dromara.soul.admin.controller;
 
-import org.dromara.soul.admin.dto.SelectorDTO;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.SelectorQuery;
+import org.dromara.soul.admin.model.dto.SelectorDTO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.SelectorQuery;
 import org.dromara.soul.admin.service.SelectorService;
 import org.dromara.soul.admin.utils.SoulResultMessage;
-import org.dromara.soul.admin.vo.SelectorVO;
+import org.dromara.soul.admin.model.vo.SelectorVO;
 import org.dromara.soul.common.enums.MatchModeEnum;
 import org.dromara.soul.common.enums.SelectorTypeEnum;
 import org.dromara.soul.common.utils.DateUtils;
@@ -65,7 +65,7 @@ public final class SelectorControllerTest {
 
     private final PageParameter pageParameter = new PageParameter();
 
-    private final SelectorQuery selectorQuery = new SelectorQuery("2", pageParameter);
+    private final SelectorQuery selectorQuery = new SelectorQuery("2", "selector-1", pageParameter);
 
     private final SelectorVO selectorVO = new SelectorVO("1", "2", "selector-1", MatchModeEnum.AND.getCode(),
             MatchModeEnum.AND.getName(), SelectorTypeEnum.FULL_FLOW.getCode(), SelectorTypeEnum.FULL_FLOW.getName(),
@@ -82,8 +82,8 @@ public final class SelectorControllerTest {
     @Test
     public void querySelectors() throws Exception {
         given(this.selectorService.listByPage(selectorQuery)).willReturn(commonPager);
-        String urlTemplate = "/selector?pluginId={pluginId}&currentPage={currentPage}&pageSize={pageSize}";
-        this.mockMvc.perform(MockMvcRequestBuilders.get(urlTemplate, "2", 1, 12))
+        String urlTemplate = "/selector?pluginId={pluginId}&name={name}&currentPage={currentPage}&pageSize={pageSize}";
+        this.mockMvc.perform(MockMvcRequestBuilders.get(urlTemplate, "2", "selector-1", 1, 12))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is(SoulResultMessage.QUERY_SUCCESS)))
                 .andExpect(jsonPath("$.data.dataList[0].id", is(selectorVO.getId())))

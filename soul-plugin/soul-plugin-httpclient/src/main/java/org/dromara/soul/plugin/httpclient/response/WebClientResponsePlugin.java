@@ -21,11 +21,11 @@ import org.dromara.soul.common.constant.Constants;
 import org.dromara.soul.common.enums.PluginEnum;
 import org.dromara.soul.common.enums.RpcTypeEnum;
 import org.dromara.soul.plugin.api.result.SoulResultEnum;
-import org.dromara.soul.plugin.base.utils.SoulResultWrap;
+import org.dromara.soul.plugin.api.result.SoulResultWrap;
 import org.dromara.soul.plugin.api.SoulPlugin;
 import org.dromara.soul.plugin.api.SoulPluginChain;
 import org.dromara.soul.plugin.api.context.SoulContext;
-import org.dromara.soul.plugin.base.utils.WebFluxResultUtils;
+import org.dromara.soul.plugin.api.utils.WebFluxResultUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -68,7 +68,7 @@ public class WebClientResponsePlugin implements SoulPlugin {
             response.setStatusCode(clientResponse.statusCode());
             response.getCookies().putAll(clientResponse.cookies());
             response.getHeaders().putAll(clientResponse.headers().asHttpHeaders());
-            return response.writeWith(clientResponse.body(BodyExtractors.toDataBuffers()));
+            return response.writeWith(clientResponse.body(BodyExtractors.toDataBuffers())).doOnCancel(() -> clean(exchange));
         }));
     }
 
@@ -93,5 +93,12 @@ public class WebClientResponsePlugin implements SoulPlugin {
     @Override
     public String named() {
         return PluginEnum.RESPONSE.getName();
+    }
+    
+    private void clean(final ServerWebExchange exchange) {
+        ClientResponse clientResponse = exchange.getAttribute(Constants.CLIENT_RESPONSE_ATTR);
+        if (clientResponse != null) {
+            clientResponse.bodyToMono(Void.class).subscribe();
+        }
     }
 }

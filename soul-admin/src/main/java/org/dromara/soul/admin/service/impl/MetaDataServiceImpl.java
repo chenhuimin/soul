@@ -21,16 +21,16 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.soul.admin.dto.MetaDataDTO;
-import org.dromara.soul.admin.entity.MetaDataDO;
+import org.dromara.soul.admin.model.dto.MetaDataDTO;
+import org.dromara.soul.admin.model.entity.MetaDataDO;
 import org.dromara.soul.admin.listener.DataChangedEvent;
 import org.dromara.soul.admin.mapper.MetaDataMapper;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageResultUtils;
-import org.dromara.soul.admin.query.MetaDataQuery;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageResultUtils;
+import org.dromara.soul.admin.model.query.MetaDataQuery;
 import org.dromara.soul.admin.service.MetaDataService;
 import org.dromara.soul.admin.transfer.MetaDataTransfer;
-import org.dromara.soul.admin.vo.MetaDataVO;
+import org.dromara.soul.admin.model.vo.MetaDataVO;
 import org.dromara.soul.common.constant.AdminConstants;
 import org.dromara.soul.common.dto.MetaData;
 import org.dromara.soul.common.enums.ConfigGroupEnum;
@@ -82,9 +82,11 @@ public class MetaDataServiceImpl implements MetaDataService {
         }
         MetaDataDO metaDataDO = MetaDataTransfer.INSTANCE.mapToEntity(metaDataDTO);
         DataEventTypeEnum eventType;
+        String pathDesc = metaDataDO.getPathDesc() == null ? "" : metaDataDO.getPathDesc();
         if (StringUtils.isEmpty(metaDataDTO.getId())) {
             Timestamp currentTime = new Timestamp(System.currentTimeMillis());
             metaDataDO.setId(UUIDUtils.getInstance().generateShortUuid());
+            metaDataDO.setPathDesc(pathDesc);
             metaDataDO.setDateCreated(currentTime);
             metaDataDO.setDateUpdated(currentTime);
             metaDataMapper.insert(metaDataDO);
@@ -92,6 +94,7 @@ public class MetaDataServiceImpl implements MetaDataService {
         } else {
             MetaDataDO m = metaDataMapper.selectById(metaDataDTO.getId());
             Optional.ofNullable(m).ifPresent(e -> metaDataDTO.setEnabled(e.getEnabled()));
+            metaDataDO.setPathDesc(pathDesc);
             metaDataMapper.update(metaDataDO);
             eventType = DataEventTypeEnum.UPDATE;
         }

@@ -23,7 +23,7 @@ import org.dromara.soul.common.enums.RpcTypeEnum;
 import org.dromara.soul.plugin.api.SoulPluginChain;
 import org.dromara.soul.plugin.api.context.SoulContext;
 import org.dromara.soul.plugin.api.result.SoulResult;
-import org.dromara.soul.plugin.base.utils.SpringBeanUtils;
+import org.dromara.soul.plugin.api.utils.SpringBeanUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,6 +89,16 @@ public final class WebClientPluginTest {
         WebClientPlugin webClientPluginNoPathTest = new WebClientPlugin(webClientNoPathTest);
         Mono<Void> monoNoPathTest = webClientPluginNoPathTest.execute(exchangeNoPathTest, chainNoPathTest);
         StepVerifier.create(monoNoPathTest).expectSubscription().verifyComplete();
+
+        final SoulPluginChain chainPostTest = mock(SoulPluginChain.class);
+        final WebClient webClientPostTest = mockWebClientOK();
+        ServerWebExchange exchangePostTest = MockServerWebExchange
+                .from(MockServerHttpRequest.post("/test123?param=1").build());
+        exchangePostTest.getAttributes().put(Constants.CONTEXT, mock(SoulContext.class));
+        exchangePostTest.getAttributes().put(Constants.HTTP_URL, "/test123?param=1");
+        WebClientPlugin webClientPluginPostTest = new WebClientPlugin(webClientPostTest);
+        Mono<Void> monoPostTest = webClientPluginPostTest.execute(exchangePostTest, chainPostTest);
+        StepVerifier.create(monoPostTest).expectSubscription().verifyError();
 
         final SoulPluginChain chainOkTest = mock(SoulPluginChain.class);
         final WebClient webClientOkTest = mockWebClientOK();

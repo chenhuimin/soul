@@ -24,7 +24,7 @@ import org.dromara.soul.common.enums.RpcTypeEnum;
 import org.dromara.soul.plugin.api.SoulPluginChain;
 import org.dromara.soul.plugin.api.context.SoulContext;
 import org.dromara.soul.plugin.api.result.SoulResult;
-import org.dromara.soul.plugin.base.utils.SpringBeanUtils;
+import org.dromara.soul.plugin.api.utils.SpringBeanUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -140,14 +140,13 @@ public class NettyClientResponsePluginTest {
      */
     @Test
     public void testNamed() {
-        assertEquals("NettyWriteResponse", nettyClientResponsePlugin.named());
+        assertEquals("NettyClientResponse", nettyClientResponsePlugin.named());
     }
 
     private ServerWebExchange generateServerWebExchange() {
         ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/test").build());
         exchange.getAttributes().put(Constants.CONTEXT, mock(SoulContext.class));
         exchange.getAttributes().put(Constants.HTTP_URL, "/test");
-
         return exchange;
     }
 }

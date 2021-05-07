@@ -21,10 +21,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
-import java.lang.reflect.Field;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +33,11 @@ import org.dromara.soul.common.dto.MetaData;
 import org.dromara.soul.common.enums.LoadBalanceEnum;
 import org.dromara.soul.common.exception.SoulException;
 import org.dromara.soul.common.utils.GsonUtils;
+
+import java.lang.reflect.Field;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -101,14 +102,27 @@ public final class ApplicationConfigCache {
         if (applicationConfig == null) {
             applicationConfig = new ApplicationConfig("soul_proxy");
         }
-        if (registryConfig == null) {
-            registryConfig = new RegistryConfig();
-            registryConfig.setProtocol(dubboRegisterConfig.getProtocol());
-            registryConfig.setId("soul_proxy");
-            registryConfig.setRegister(false);
-            registryConfig.setAddress(dubboRegisterConfig.getRegister());
-            Optional.ofNullable(dubboRegisterConfig.getGroup()).ifPresent(registryConfig::setGroup);
+        if (needUpdateRegistryConfig(dubboRegisterConfig)) {
+            RegistryConfig registryConfigTemp = new RegistryConfig();
+            registryConfigTemp.setProtocol(dubboRegisterConfig.getProtocol());
+            registryConfigTemp.setId("soul_proxy");
+            registryConfigTemp.setRegister(false);
+            registryConfigTemp.setAddress(dubboRegisterConfig.getRegister());
+            Optional.ofNullable(dubboRegisterConfig.getGroup()).ifPresent(registryConfigTemp::setGroup);
+            registryConfig = registryConfigTemp;
         }
+    }
+
+    private boolean needUpdateRegistryConfig(final DubboRegisterConfig dubboRegisterConfig) {
+        if (registryConfig == null) {
+            return true;
+        }
+        if (!Objects.equals(dubboRegisterConfig.getProtocol(), registryConfig.getProtocol())
+                || !Objects.equals(dubboRegisterConfig.getRegister(), registryConfig.getAddress())
+                || !Objects.equals(dubboRegisterConfig.getProtocol(), registryConfig.getProtocol())) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -138,7 +152,7 @@ public final class ApplicationConfigCache {
      */
     public ReferenceConfig<GenericService> build(final MetaData metaData) {
         ReferenceConfig<GenericService> reference = new ReferenceConfig<>();
-        reference.setGeneric(true);
+        reference.setGeneric("true");
         reference.setApplication(applicationConfig);
         reference.setRegistry(registryConfig);
         reference.setInterface(metaData.getServiceName());

@@ -25,7 +25,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dromara.soul.common.dto.MetaData;
 import org.dromara.soul.common.enums.RpcTypeEnum;
-import org.dromara.soul.plugin.api.sofa.SofaParamResolveService;
+import org.dromara.soul.plugin.api.param.BodyParamResolveService;
 import org.dromara.soul.plugin.sofa.cache.ApplicationConfigCache;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +48,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class SofaProxyServiceTest {
+    
     private static final String PATH = "/sofa/findAll";
 
     private static final String METHOD_NAME = "findAll";
@@ -83,7 +84,7 @@ public final class SofaProxyServiceTest {
         GenericService genericService = mock(GenericService.class);
         when(consumerConfig.refer()).thenReturn(genericService);
         when(consumerConfig.getInterfaceId()).thenReturn(PATH);
-        when(genericService.$invoke(METHOD_NAME, LEFT, RIGHT)).thenReturn(null);
+        when(genericService.$genericInvoke(METHOD_NAME, LEFT, RIGHT)).thenReturn(null);
         ApplicationConfigCache applicationConfigCache = ApplicationConfigCache.getInstance();
         Field field = ApplicationConfigCache.class.getDeclaredField("cache");
         field.setAccessible(true);
@@ -93,12 +94,11 @@ public final class SofaProxyServiceTest {
         RpcInvokeContext.getContext().getResponseCallback().onAppResponse("success", null, null);
     }
 
-    static class SofaParamResolveServiceImpl implements SofaParamResolveService {
+    static class SofaParamResolveServiceImpl implements BodyParamResolveService {
 
         @Override
         public Pair<String[], Object[]> buildParameter(final String body, final String parameterTypes) {
             return new ImmutablePair<>(LEFT, RIGHT);
         }
     }
-
 }

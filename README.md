@@ -1,8 +1,8 @@
 <p align="center" >
-    <a href="https://dromara.org"><img src="https://yu199195.github.io/images/soul/soul-logo.png" width="45%"></a>
+    <a href="https://dromara.org"><img src="https://dromara.org/img/logo/soul.png" width="45%"></a>
 </p>
 <p align="center">
-  <strong>Scalable,High Performance,Responsive API Gateways</strong>
+  <strong>Scalable, High Performance, Responsive API Gateway Solution for all MicroSerivces</strong>
 </p>
 <p align="center">
   <a href="https://dromara.org">https://dromara.org/</a>
@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-    <a target="_blank" href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.dromara%22%20AND%soul">
+    <a target="_blank" href="https://search.maven.org/search?q=g:org.dromara%20AND%20a:soul">
         <img src="https://img.shields.io/maven-central/v/org.dromara/soul.svg?label=maven%20central" />
     </a>
     <a target="_blank" href="https://github.com/Dromara/soul/blob/master/LICENSE">
@@ -22,14 +22,14 @@
     <a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html">
         <img src="https://img.shields.io/badge/JDK-8+-green.svg" />
     </a>
-    <a target="_blank" href="https://github.com/dromara/soul">
+    <a target="_blank" href="https://github.com/dromara/soul/actions">
         <img src="https://github.com/dromara/soul/workflows/ci/badge.svg" />
     </a>
     <a href="https://www.codacy.com/app/yu199195/soul?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Dromara/soul&amp;utm_campaign=Badge_Grade">
         <img src="https://api.codacy.com/project/badge/Grade/4367ffad5b434b7e8078b3a68cc6398d"/>
     </a>
-    <a target="_blank" href='https://gitee.com/shuaiqiyu/soul/stargazers'>
-        <img src='https://gitee.com/shuaiqiyu/soul/badge/star.svg?theme=gvp' alt='gitee stars'/>
+    <a target="_blank" href='https://gitee.com/dromara/soul/stargazers'>
+        <img src='https://gitee.com/dromara/soul/badge/star.svg?theme=gvp' alt='gitee stars'/>
    </a>
    <a target="_blank" href='https://github.com/dromara/soul'>
         <img src="https://img.shields.io/github/forks/dromara/soul.svg" alt="github forks"/>
@@ -57,21 +57,25 @@
  
 -------------------------------------------------------------------------------- 
   
-# Execution Flow
+# Mind maps
  
- ![](https://yu199195.github.io/images/soul/soul-handler.png)
+ ![](https://dromara.org/img/soul/activite/soul-xmind.png)
  
 --------------------------------------------------------------------------------  
   
 # Modules
 
- * soul-admin : plugins and other information configuration management background
+ * soul-admin : plugins and other configuration information management background
  
  * soul-bootstrap : with the startup project, users can refer to
  
  * soul-client : user fast access with Spring MVC, Dubbo, Spring Cloud.
   
  * soul-common : framework common class
+ 
+ * soul-disruptor : based on disruptor Enclosure
+ 
+ * soul-register-center : rpc type register for soul-client
  
  * soul-dist : build project
 
@@ -93,9 +97,9 @@
  
 # Features
 
-   * Soul provides plugins such as current limiting, fusing, forwarding, routing monitoring and so on.
+   * Soul provides ability such as current limiting, fusing, forwarding, routing monitoring and so on by its plugins.
    
-   * Seamless docking with HTTP, RESTful, WebSocket, Dubbo and Spring Cloud.
+   * Support HTTP, RESTFul, WebSocket, Dubbo, GRPC, Tars and Spring Cloud Proxy.
    
    * Plug-in hot plug, users can customize the development.
    
@@ -109,7 +113,7 @@
  
 # Plugin
 
- Whenever a request comes in, Soul executes all open plugins through the chain of responsibility.
+ Whenever a request comes in, Soul will execute it by all enabled plugins through the chain of responsibility.
  
  As the heart of Soul, plugins are extensible and hot-pluggable.
  
@@ -117,7 +121,7 @@
  
  Of course, users can also customize plugins to meet their own needs.
  
- If you want to customize, see [plugin-extend](https://dromara.org/website/zh-cn/docs/soul/extend.html)
+ If you want to customize, see [custom-plugin](https://dromara.org/projects/soul/custom-plugin/)
  
 --------------------------------------------------------------------------------  
  
@@ -127,7 +131,7 @@
   
   Selector is your first route, It is coarser grained, for example, at the module level.
   
-  Rule is your second route and what do you think your request should do,For example a method level in a module.
+  Rule is your second route and what do you think your request should do. For example a method level in a module.
   
   The selector and the rule match only once, and the match is returned. So the coarsest granularity should be sorted last.
  
@@ -135,9 +139,9 @@
    
 # Data Caching & Data Sync
  
-  All data have been cached using ConcurrentHashMap in the JVM, so it's very fast.
+  Since all data have been cached using ConcurrentHashMap in the JVM, it's very fast.
   
-  When the user is managing changes in the background, Soul dynamically updates the cache by listening to the ZooKeeper node, WebSocket push, HTTP longPull.
+  When user have changed the configuration in the background management, Soul wiil dynamically updates its cache by listening to the ZooKeeper node, WebSocket push, HTTP longPull.
   
   ![](https://yu199195.github.io/images/soul/soul-config-processor.png)
   
@@ -149,40 +153,26 @@
  
    * JDK 1.8+
    
-   * MySQL
-   
 --------------------------------------------------------------------------------     
    
 # About
   
-   Soul has been used in our production environment,its performance and flexibility allow us to use up very cool.
+   Soul has been used widely in more and more systems in many companies, and it's simple and convenient to integrate Services/APIs with the high performance and flexibility.
    
-   In double 11, we deployed 6 clusters, which supported a large volume of our business.
+   In double eleven online shopping carnival of China, Soul clusters successfully supported a large volume of internet business.
    
 --------------------------------------------------------------------------------  
     
 # Document & Website
 
-[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](https://dromara.org/website/en-us/docs/soul/soul.html)
-[![CN doc](https://img.shields.io/badge/document-Chinese-blue.svg)](https://dromara.org/website/zh-cn/docs/soul/soul.html)
+[![EN doc](https://img.shields.io/badge/document-English-blue.svg)](https://dromara.org/projects/soul/overview)
+[![CN doc](https://img.shields.io/badge/document-Chinese-blue.svg)](https://dromara.org/zh/projects/soul/overview)
   
 --------------------------------------------------------------------------------  
         
 # Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/Dromara/soul.svg)](https://starchart.cc/Dromara/soul)
-
---------------------------------------------------------------------------------  
-
-# Videos
-
-* [evn setup 01 ](http://www.iqiyi.com/w_19s6521605.html)
-
-* [evn setup 02 ](http://www.iqiyi.com/w_19s65203ap.html)
-
-* [source code debug](http://www.iqiyi.com/w_19s650tbol.html)
-
-* [plugins](http://www.iqiyi.com/w_19s651zyo9.html)
 
 --------------------------------------------------------------------------------  
 
@@ -239,6 +229,22 @@ In order of registration, More access companies are welcome to register at [http
       <td><img src="https://yu199195.github.io/images/soul/users/anka.png"  width="1800" height="90" alt="anka"/>
     </tr>
   </tbody>     
+  <tbody>
+    <tr>
+      <td><img src="https://dromara.org/img/users/jd_logo.png"  width="1800" height="90" alt="jd"/>
+      <td><img src="https://yu199195.github.io/images/soul/users/minglamp.jpeg"  width="1800" height="90" alt="minglamp"/>
+      <td><img src="https://yu199195.github.io/images/soul/users/webuy.jpg"  width="1800" height="90" alt="webuy"/>
+      <td><img src="https://dromara.org/img/users/cass.png"  width="1800" height="90" alt="cass"/>
+    </tr>
+  </tbody> 
+  <tbody>
+    <tr>
+      <td><img src="https://dromara.org/img/users/songguo.png"  width="1800" height="90" alt="songguo"/>
+      <td><img src="https://dromara.org/img/users/lianlian.png"  width="1800" height="90" alt="lianlian"/>
+      <td><img src="https://dromara.org/img/users/dasouche.png"  width="1800" height="90" alt="dasouche"/>
+      <td><img src="https://dromara.org/img/users/weimai.png"  width="1800" height="90" alt="weimai"/>
+    </tr>
+  </tbody> 
 </table>
 
 # Support  
@@ -248,12 +254,14 @@ In order of registration, More access companies are welcome to register at [http
     <th>WeChat</th>
     <th>QQ</th>
     <th>Taro Source</th>
+    <th>JetBrains</th>
   </thead>
   <tbody>
     <tr>
-      <td><img src="https://yu199195.github.io/images/public.jpg"   alt="微信公众号"/>
-      <td><img src="https://yu199195.github.io/images/soul-qq.png"  alt="QQ 交流群"/>
-      <td><img src="http://www.iocoder.cn/images/common/erweima.jpg"  alt="芋道源码"/>
+      <td><img src="https://yu199195.github.io/images/public.jpg"   alt="WeChat"/>
+      <td><img src="https://yu199195.github.io/images/soul-qq.png"  alt="QQ group"/>
+      <td><img src="http://www.iocoder.cn/images/common/erweima.jpg"  alt="yuNai"/>
+      <td><img src="https://yu199195.github.io/images/jetbrains.svg"  alt="Jetbrains"/>
     </tr>
   </tbody>
 </table>

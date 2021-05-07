@@ -17,19 +17,20 @@
 
 package org.dromara.soul.admin.service;
 
-import org.dromara.soul.admin.config.JwtProperties;
-import org.dromara.soul.admin.config.SecretProperties;
-import org.dromara.soul.admin.dto.DashboardUserDTO;
-import org.dromara.soul.admin.entity.DashboardUserDO;
+import org.dromara.soul.admin.config.properties.JwtProperties;
+import org.dromara.soul.admin.config.properties.SecretProperties;
+import org.dromara.soul.admin.mapper.DataPermissionMapper;
+import org.dromara.soul.admin.model.dto.DashboardUserDTO;
+import org.dromara.soul.admin.model.entity.DashboardUserDO;
 import org.dromara.soul.admin.mapper.DashboardUserMapper;
 import org.dromara.soul.admin.mapper.RoleMapper;
 import org.dromara.soul.admin.mapper.UserRoleMapper;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.DashboardUserQuery;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.DashboardUserQuery;
 import org.dromara.soul.admin.service.impl.DashboardUserServiceImpl;
 import org.dromara.soul.admin.spring.SpringBeanUtils;
-import org.dromara.soul.admin.vo.DashboardUserVO;
+import org.dromara.soul.admin.model.vo.DashboardUserVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -80,6 +81,9 @@ public final class DashboardUserServiceTest {
     private RoleMapper roleMapper;
 
     @Mock
+    private DataPermissionMapper dataPermissionMapper;
+
+    @Mock
     private SecretProperties secretProperties;
 
     @Test
@@ -124,6 +128,18 @@ public final class DashboardUserServiceTest {
         assertEquals(TEST_USER_NAME, dashboardUserVO.getUserName());
         assertEquals(TEST_PASSWORD, dashboardUserVO.getPassword());
         verify(dashboardUserMapper).findByQuery(eq(TEST_USER_NAME), eq(TEST_PASSWORD));
+    }
+
+    @Test
+    public void testFindByUsername() {
+        DashboardUserDO dashboardUserDO = createDashboardUserDO();
+        given(dashboardUserMapper.selectByUserName(eq(TEST_USER_NAME))).willReturn(dashboardUserDO);
+
+        DashboardUserVO dashboardUserVO = dashboardUserService.findByUserName(TEST_USER_NAME);
+        assertEquals(TEST_ID, dashboardUserVO.getId());
+        assertEquals(TEST_USER_NAME, dashboardUserVO.getUserName());
+        assertEquals(TEST_PASSWORD, dashboardUserVO.getPassword());
+        verify(dashboardUserMapper).selectByUserName(eq(TEST_USER_NAME));
     }
 
     @Test

@@ -18,19 +18,19 @@
 package org.dromara.soul.admin.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dromara.soul.admin.dto.AuthApplyDTO;
-import org.dromara.soul.admin.dto.AppAuthDTO;
-import org.dromara.soul.admin.dto.AuthPathDTO;
-import org.dromara.soul.admin.dto.AuthPathWarpDTO;
-import org.dromara.soul.admin.dto.BatchCommonDTO;
+import org.dromara.soul.admin.model.dto.AuthApplyDTO;
+import org.dromara.soul.admin.model.dto.AppAuthDTO;
+import org.dromara.soul.admin.model.dto.AuthPathDTO;
+import org.dromara.soul.admin.model.dto.AuthPathWarpDTO;
+import org.dromara.soul.admin.model.dto.BatchCommonDTO;
 import org.dromara.soul.admin.service.AppAuthService;
-import org.dromara.soul.admin.vo.AppAuthVO;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.AppAuthQuery;
-import org.dromara.soul.admin.result.SoulAdminResult;
+import org.dromara.soul.admin.model.vo.AppAuthVO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.AppAuthQuery;
+import org.dromara.soul.admin.model.result.SoulAdminResult;
 import org.dromara.soul.admin.utils.SoulResultMessage;
-import org.dromara.soul.admin.vo.AuthPathVO;
+import org.dromara.soul.admin.model.vo.AuthPathVO;
 import org.dromara.soul.common.constant.AdminConstants;
 import org.dromara.soul.common.utils.DateUtils;
 import org.dromara.soul.common.utils.GsonUtils;
@@ -75,7 +75,7 @@ public final class AppAuthControllerTest {
 
     private final AppAuthVO appAuthVO = new AppAuthVO("0001", "testAppKey", "testAppSecret",
             "testUser", "18600000000", "{\"extInfo\": \"test\"}",
-            true, null,
+            true, true, null,
             DateUtils.localDateTimeToString(LocalDateTime.now()));
 
     @Before
@@ -93,6 +93,7 @@ public final class AppAuthControllerTest {
         authApplyDTO.setPhone("18600000000");
         authApplyDTO.setAppParam("{\"type\": \"test\"}");
         authApplyDTO.setExtInfo("{\"extInfo\": \"test\"}");
+        authApplyDTO.setOpen(true);
         authApplyDTO.setPathList(pathList);
         given(this.appAuthService.applyCreate(authApplyDTO)).willReturn(
                 SoulAdminResult.success(SoulResultMessage.CREATE_SUCCESS));
@@ -115,6 +116,7 @@ public final class AppAuthControllerTest {
         authApplyDTO.setAppParam("{\"type\": \"test\"}");
         authApplyDTO.setAppKey("testAppKey");
         authApplyDTO.setExtInfo("{\"extInfo\": \"test\"}");
+        authApplyDTO.setOpen(true);
         authApplyDTO.setPathList(pathList);
         given(this.appAuthService.applyUpdate(authApplyDTO)).willReturn(
                 SoulAdminResult.success(SoulResultMessage.CREATE_SUCCESS));
@@ -125,7 +127,7 @@ public final class AppAuthControllerTest {
                 .andExpect(jsonPath("$.message", is(SoulResultMessage.CREATE_SUCCESS)))
                 .andReturn();
     }
-    
+
     @Test
     public void testUpdateSk() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.get("/appAuth/updateSk")

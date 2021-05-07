@@ -17,6 +17,7 @@
 
 package org.dromara.soul.plugin.divide;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,18 +28,20 @@ import org.dromara.soul.common.dto.convert.DivideUpstream;
 import org.dromara.soul.common.dto.convert.rule.impl.DivideRuleHandle;
 import org.dromara.soul.common.enums.PluginEnum;
 import org.dromara.soul.common.enums.RpcTypeEnum;
-import org.dromara.soul.common.utils.GsonUtils;
 import org.dromara.soul.plugin.api.SoulPluginChain;
 import org.dromara.soul.plugin.api.context.SoulContext;
 import org.dromara.soul.plugin.api.result.SoulResultEnum;
 import org.dromara.soul.plugin.base.AbstractSoulPlugin;
-import org.dromara.soul.plugin.base.utils.SoulResultWrap;
-import org.dromara.soul.plugin.base.utils.WebFluxResultUtils;
+import org.dromara.soul.plugin.base.utils.FallbackUtils;
+import org.dromara.soul.plugin.api.result.SoulResultWrap;
+import org.dromara.soul.plugin.api.utils.WebFluxResultUtils;
 import org.dromara.soul.plugin.divide.balance.utils.LoadBalanceUtils;
 import org.dromara.soul.plugin.divide.cache.UpstreamCacheManager;
+import org.dromara.soul.plugin.divide.handler.DividePluginDataHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,11 +53,28 @@ import java.util.Objects;
 @Slf4j
 public class DividePlugin extends AbstractSoulPlugin {
 
+    @SneakyThrows
     @Override
     protected Mono<Void> doExecute(final ServerWebExchange exchange, final SoulPluginChain chain, final SelectorData selector, final RuleData rule) {
         final SoulContext soulContext = exchange.getAttribute(Constants.CONTEXT);
         assert soulContext != null;
-        final DivideRuleHandle ruleHandle = GsonUtils.getInstance().fromJson(rule.getHandle(), DivideRuleHandle.class);
+        final DivideRuleHandle ruleHandle = UpstreamCacheManager.getInstance().obtainHandle(DividePluginDataHandler.getCacheKeyName(rule));
+        long headerSize = 0;
+        for (List<String> multiHeader : exchange.getRequest().getHeaders().values()) {
+            for (String value : multiHeader) {
+                headerSize += value.getBytes(StandardCharsets.UTF_8).length;
+            }
+        }
+        if (headerSize > ruleHandle.getHeaderMaxSize()) {
+            log.error("request header is too large");
+            Object error = SoulResultWrap.error(SoulResultEnum.REQUEST_HEADER_TOO_LARGE.getCode(), SoulResultEnum.REQUEST_HEADER_TOO_LARGE.getMsg(), null);
+            return WebFluxResultUtils.result(exchange, error);
+        }
+        if (exchange.getRequest().getHeaders().getContentLength() > ruleHandle.getRequestMaxSize()) {
+            log.error("request entity is too large");
+            Object error = SoulResultWrap.error(SoulResultEnum.REQUEST_ENTITY_TOO_LARGE.getCode(), SoulResultEnum.REQUEST_ENTITY_TOO_LARGE.getMsg(), null);
+            return WebFluxResultUtils.result(exchange, error);
+        }
         final List<DivideUpstream> upstreamList = UpstreamCacheManager.getInstance().findUpstreamListBySelectorId(selector.getId());
         if (CollectionUtils.isEmpty(upstreamList)) {
             log.error("divide upstream configuration error： {}", rule.toString());
@@ -94,6 +114,16 @@ public class DividePlugin extends AbstractSoulPlugin {
         return PluginEnum.DIVIDE.getCode();
     }
 
+    @Override
+    protected Mono<Void> handleSelectorIsNull(final String pluginName, final ServerWebExchange exchange, final SoulPluginChain chain) {
+        return FallbackUtils.getNoSelectorResult(pluginName, exchange);
+    }
+
+    @Override
+    protected Mono<Void> handleRuleIsNull(final String pluginName, final ServerWebExchange exchange, final SoulPluginChain chain) {
+        return FallbackUtils.getNoRuleResult(pluginName, exchange);
+    }
+
     private String buildDomain(final DivideUpstream divideUpstream) {
         String protocol = divideUpstream.getProtocol();
         if (StringUtils.isBlank(protocol)) {
@@ -113,7 +143,7 @@ public class DividePlugin extends AbstractSoulPlugin {
                 path = path + realUrl;
             }
         }
-        String query = exchange.getRequest().getURI().getQuery();
+        String query = exchange.getRequest().getURI().getRawQuery();
         if (StringUtils.isNoneBlank(query)) {
             return path + "?" + query;
         }

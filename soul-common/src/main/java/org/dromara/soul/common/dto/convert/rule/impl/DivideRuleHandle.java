@@ -32,6 +32,8 @@ import org.dromara.soul.common.dto.convert.rule.RuleHandle;
 @NoArgsConstructor
 public class DivideRuleHandle implements RuleHandle {
 
+    private static final long serialVersionUID = 3975134663460754084L;
+
     /**
      * loadBalance.
      * {@linkplain org.dromara.soul.common.enums.LoadBalanceEnum}
@@ -47,6 +49,16 @@ public class DivideRuleHandle implements RuleHandle {
      * timeout is required.
      */
     private long timeout = Constants.TIME_OUT;
+
+    /**
+     * headerMaxSize.
+     */
+    private long headerMaxSize = Constants.HEADER_MAX_SIZE;
+
+    /**
+     * requestMaxSize.
+     */
+    private long requestMaxSize = Constants.REQUEST_MAX_SIZE;
 
     @Override
     public RuleHandle createDefault(final String path) {

@@ -21,11 +21,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * PluginEnum.
- *
- * @author xiaoyu(Myth)
  */
 @RequiredArgsConstructor
 @Getter
@@ -65,7 +64,7 @@ public enum PluginEnum {
      * Redirect plugin enum.
      */
     REDIRECT(40, 0, "redirect"),
-    
+
     /**
      * Hystrix plugin enum.
      */
@@ -80,6 +79,11 @@ public enum PluginEnum {
      * Resilence4J plugin enum.
      */
     RESILIENCE4J(45, 0, "resilience4j"),
+
+    /**
+     * Logging plugin enum.
+     */
+    LOGGING(45, 0, "logging"),
 
     /**
      * Divide plugin enum.
@@ -97,6 +101,11 @@ public enum PluginEnum {
     WEB_SOCKET(55, 0, "webSocket"),
 
     /**
+     * Param transform plugin enum.
+     */
+    PARAM_TRANSFORM(58, 0, "paramTransform"),
+
+    /**
      * Dubbo plugin enum.
      */
     DUBBO(60, 0, "dubbo"),
@@ -110,6 +119,16 @@ public enum PluginEnum {
      * Tars plugin enum.
      */
     TARS(60, 0, "tars"),
+
+    /**
+     * GPRC plugin enum.
+     */
+    GRPC(60, 0, "grpc"),
+
+    /**
+     * Motan plugin enum.
+     */
+    MOTAN(60, 0, "motan"),
 
     /**
      * Monitor plugin enum.
@@ -137,5 +156,14 @@ public enum PluginEnum {
         return Arrays.stream(PluginEnum.values())
                 .filter(pluginEnum -> pluginEnum.getName().equals(name))
                 .findFirst().orElse(PluginEnum.GLOBAL);
+    }
+
+    /**
+     * get upstream plugin names.
+     *
+     * @return List string
+     */
+    public static List<String> getUpstreamNames() {
+        return Arrays.asList(DIVIDE.name, GRPC.name, TARS.name);
     }
 }

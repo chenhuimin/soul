@@ -17,14 +17,14 @@
 
 package org.dromara.soul.admin.controller;
 
-import org.dromara.soul.admin.dto.SelectorDTO;
-import org.dromara.soul.admin.page.CommonPager;
-import org.dromara.soul.admin.page.PageParameter;
-import org.dromara.soul.admin.query.SelectorQuery;
-import org.dromara.soul.admin.result.SoulAdminResult;
+import org.dromara.soul.admin.model.dto.SelectorDTO;
+import org.dromara.soul.admin.model.page.CommonPager;
+import org.dromara.soul.admin.model.page.PageParameter;
+import org.dromara.soul.admin.model.query.SelectorQuery;
+import org.dromara.soul.admin.model.result.SoulAdminResult;
+import org.dromara.soul.admin.model.vo.SelectorVO;
 import org.dromara.soul.admin.service.SelectorService;
 import org.dromara.soul.admin.utils.SoulResultMessage;
-import org.dromara.soul.admin.vo.SelectorVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,13 +58,14 @@ public class SelectorController {
      * query Selectors.
      *
      * @param pluginId    plugin id.
+     * @param name        selector name.
      * @param currentPage current page.
      * @param pageSize    page size.
      * @return {@linkplain SoulAdminResult}
      */
     @GetMapping("")
-    public SoulAdminResult querySelectors(final String pluginId, final Integer currentPage, final Integer pageSize) {
-        CommonPager<SelectorVO> commonPager = selectorService.listByPage(new SelectorQuery(pluginId, new PageParameter(currentPage, pageSize)));
+    public SoulAdminResult querySelectors(final String pluginId, final String name, final Integer currentPage, final Integer pageSize) {
+        CommonPager<SelectorVO> commonPager = selectorService.listByPage(new SelectorQuery(pluginId, name, new PageParameter(currentPage, pageSize)));
         return SoulAdminResult.success(SoulResultMessage.QUERY_SUCCESS, commonPager);
     }
 
